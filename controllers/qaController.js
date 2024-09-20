@@ -1,7 +1,6 @@
 // controller/questionController.js
-
 const fs = require('fs');
-const Question = require('../models/Question');
+const Question = require('../models/Question'); // Import your question model
 
 // Controller function to add a new question and answer
 exports.addQuestion = async (req, res) => {
@@ -112,5 +111,81 @@ exports.uploadQuestionsFromFile = async (req, res) => {
   } catch (error) {
       console.error(error);
       res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+
+
+// // MongoDB Text Search function
+// exports.mongoTextSearchQuestion = async (req, res) => {
+//   try {
+//       let { query } = req.query;
+//       if (!query) {
+//           return res.status(400).json({ error: 'Query parameter is required' });
+//       }
+
+//       // Use MongoDB's text search to find relevant questions
+//       const results = await Question.find({
+//           $text: { $search: query }
+//       });
+
+//       if (results.length > 0) {
+//           return res.status(200).json(results);
+//       } else {
+//           return res.status(404).json({ error: 'No relevant question found' });
+//       }
+//   } catch (error) {
+//       res.status(500).json({ error: 'Internal Server Error' });
+//   }
+// };
+
+
+
+// Helper function to sanitize and tokenize a string
+const sanitizeAndTokenize = (str) => {
+  return str.toLowerCase().replace(/[^a-zA-Z0-9\s]/g, '').split(/\s+/);
+};
+
+// Controller function to search for a question using keyword matching
+exports.searchQuestionTokenize = async (req, res) => {
+  try {
+    let { query } = req.query;
+    if (!query) {
+      return res.status(400).json({ error: 'No query provided' });
+    }
+
+    // Sanitize and tokenize the user's query
+    const queryTokens = sanitizeAndTokenize(query);
+
+    // Retrieve all questions from the database
+    const allQuestions = await Question.find();
+
+    let bestMatch = null;
+    let highestMatchCount = 0;
+
+    // Loop through each question in the database to find the best match
+    allQuestions.forEach(dbQuestion => {
+      const dbQuestionTokens = sanitizeAndTokenize(dbQuestion.question);
+
+      // Count how many tokens match between the user's query and the database question
+      const matchCount = queryTokens.filter(token => dbQuestionTokens.includes(token)).length;
+
+      // If the current question has more matches than the previous best match, update bestMatch
+      if (matchCount > highestMatchCount) {
+        bestMatch = dbQuestion;
+        highestMatchCount = matchCount;
+      }
+    });
+
+    // Return the best matching question if one is found
+    if (bestMatch) {
+      res.status(200).json(bestMatch);
+    } else {
+      res.status(404).json({ error: 'No relevant question found' });
+    }
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 };
