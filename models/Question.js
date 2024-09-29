@@ -1,21 +1,33 @@
 // models/Question.js
+const { DataTypes, Model } = require('sequelize');
 
-const mongoose = require('mongoose');
+class Question extends Model {
+  static initModel(sequelize) {
+    Question.init(
+      {
+        id: {
+          type: DataTypes.INTEGER,
+          primaryKey: true,
+          autoIncrement: true,
+        },
+        question: {
+          type: DataTypes.STRING,
+          allowNull: false,
+          unique: true,
+        },
+        answer: {
+          type: DataTypes.TEXT,
+          allowNull: false,
+        },
+      },
+      {
+        sequelize,
+        modelName: 'Question',
+        tableName: 'questions',
+        timestamps: true, // Adds createdAt and updatedAt fields
+      }
+    );
+  }
+}
 
-// Define the schema for questions
-const questionSchema = new mongoose.Schema({
-  question: {
-    type: String,
-    required: true,
-    // index: true, 
-  },
-  answer: {
-    type: String,
-    required: true,
-  },
-});
-
-// questionSchema.index({ question: 'text' });
-
-// Create and export the Question model
-module.exports = mongoose.model('Question', questionSchema);
+module.exports = Question;

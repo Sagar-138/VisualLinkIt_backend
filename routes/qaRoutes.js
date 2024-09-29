@@ -34,7 +34,7 @@ router.get('/questions', isAdmin, questionController.getQuestions);
 router.get('/questions/search', questionController.searchQuestion);
 
 // Route to search for a specific question using MongoDB text search
-router.get('/questions/searchQuestionTokenize', questionController.searchQuestionTokenize);
+// router.get('/questions/searchQuestionTokenize', questionController.searchQuestionTokenize);
 
 
 
