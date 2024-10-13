@@ -33,6 +33,9 @@ router.get('/questions', isAdmin, questionController.getQuestions);
 // Route to search for a specific question
 router.get('/questions/search', questionController.searchQuestion);
 
+// POST request to save a chat message
+router.post('/chats', questionController.saveChat);
+
 // Route to search for a specific question using MongoDB text search
 // router.get('/questions/searchQuestionTokenize', questionController.searchQuestionTokenize);
 

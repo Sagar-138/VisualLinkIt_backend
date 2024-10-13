@@ -3,19 +3,28 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-// const connectDB = require('./config/db');
 const questionRoutes = require('./routes/qaRoutes');
 const authRoutes = require('./routes/authRoutes');
 const { initDB }  = require('./models/index'); // Import the initialize function
 require('dotenv').config();
 
 
+const hostname = '127.0.0.1';
+const port = process.env.PORT || 5000;
+
 // Initialize Express app
 const app = express();
 
 // Middleware setup
 app.use(bodyParser.json());
-app.use(cors());
+app.use(cors({ origin: process.env.REMOTE_CLIENT_APP, credentials: true }));
+
+
+// Welcome route
+app.get('/', (req, res) => {
+  res.send('Welcome to the VisualLinkit Bot Server!');
+});
+
 
 // Initialize the database and synchronize models
 initDB().then(() => {
@@ -34,8 +43,9 @@ initDB().then(() => {
   });
 
   // Start the server
-  const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  app.listen(port, hostname, () => {
+    console.log(`Server running at http://${hostname}:${port}/`);
+  });
 }).catch(err => {
   console.error('Failed to initialize database:', err);
   process.exit(1); // Exit process with failure

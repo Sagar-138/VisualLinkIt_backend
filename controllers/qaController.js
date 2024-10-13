@@ -1,6 +1,7 @@
 // controller/questionController.js
 const fs = require('fs');
 const {Question, sequelize} = require('../models'); // Import your question model
+const Chat = require('../models/chats'); // Import Chat model
 
 
 console.log('Question Model:', Question); // Should log the Question model
@@ -85,6 +86,33 @@ exports.searchQuestion = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
+
+// Controller function to save a chat message
+exports.saveChat = async (req, res) => {
+  try {
+      const { username, message, timestamp } = req.body;
+
+      if (!username || !message || !timestamp) {
+          return res.status(400).json({ error: 'Username, message, and timestamp are required' });
+      }
+
+      // Save the chat message in the database
+      const newChat = await Chat.create({
+          username,
+          message,
+          timestamp: new Date(timestamp),
+      });
+
+      res.status(201).json(newChat); // Return the saved chat
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+
+
 
 // Controller function to upload questions from a JSON file
 exports.uploadQuestionsFromFile = async (req, res) => {
